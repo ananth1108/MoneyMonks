@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Money Monk</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Track cash flow, budgets, accounts and categories in a simple dashboard." />
+
+    <!-- PWA config -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#2ECC71">
+
+    <!-- Favicon (optional, adjust path/name as needed) -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Source+Sans+Pro:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- App CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+
+<body>
+    <header class="app-header">
+        <h1>Money Monk</h1>
+
+        <!-- Time Filter -->
+        <div class="range-selector" aria-label="Time range filter">
+            <button id="prevMonthBtn" class="icon-btn" type="button" aria-label="Previous range">&lt;</button>
+
+            <label for="timeRange" class="sr-only"> </label>
+            <select id="timeRange">
+                <option value="day">Day</option>
+                <option value="week">Week</option>
+                <option value="month" selected>Month</option>
+                <option value="3months">3 Months</option>
+                <option value="6months">6 Months</option>
+                <option value="all">All</option>
+                <option value="custom">Custom</option>
+            </select>
+
+            <label for="customMonth" class="sr-only"> </label>
+            <input type="month" id="customMonth" style="margin-left: 8px; display: none;">
+
+            <button id="nextMonthBtn" class="icon-btn" type="button" aria-label="Next range">&gt;</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- TABS -->
+        <nav class="tabs" aria-label="Main sections" role="tablist">
+            <button class="tab-btn active" data-tab="records" role="tab" aria-selected="true" aria-controls="records">
+                <span class="tab-icon">🧾</span>
+                <span class="tab-label">Records</span>
+            </button>
+            <button class="tab-btn" data-tab="analysis" role="tab" aria-selected="false" aria-controls="analysis">
+                <span class="tab-icon">📊</span>
+                <span class="tab-label">Analysis</span>
+            </button>
+            <button class="tab-btn" data-tab="budget" role="tab" aria-selected="false" aria-controls="budget">
+                <span class="tab-icon">🎯</span>
+                <span class="tab-label">Budget</span>
+            </button>
+            <button class="tab-btn" data-tab="accounts" role="tab" aria-selected="false" aria-controls="accounts">
+                <span class="tab-icon">💳</span>
+                <span class="tab-label">Accounts</span>
+            </button>
+            <button class="tab-btn" data-tab="categories" role="tab" aria-selected="false" aria-controls="categories">
+                <span class="tab-icon">🗂️</span>
+                <span class="tab-label">Categories</span>
+            </button>
+            <button class="tab-btn" data-tab="trips" role="tab" aria-selected="false" aria-controls="trips">
+                <span class="tab-icon">🏖️</span>
+                <span class="tab-label">Trips</span>
+            </button>
+
+
+        </nav>
+
+        <!-- ================= CONTENT SECTIONS ================= -->
+
+        <!-- Records -->
+        <section id="records" class="tab-section active" role="tabpanel" aria-labelledby="records">
+            <h2>Recent Expenses</h2>
+
+            <!-- 🔹 OVERVIEW STATS (Today / Week / Month) + Add button -->
+            <div class="records-top-row">
+                <div id="recordsStats" class="analysis-summary"></div>
+
+                <div class="action-row records-add-btn">
+                    <button id="addExpenseBtn" class="primary-btn">
+                        + Add Income/Expense
+                    </button>
+                </div>
+            </div>
+
+            <!-- 🔹 QUICK REPEAT -->
+            <h3 class="sub-title">Quick repeat</h3>
+            <div id="quickTemplates" class="quick-templates"></div>
+
+            <div id="recordsList" class="card-list">
+                <!-- JS will populate -->
+            </div>
+        </section>
+
+
+        <!-- Analysis -->
+        <section id="analysis" class="tab-section" role="tabpanel" aria-labelledby="analysis" hidden>
+            <h2>Analysis</h2>
+
+            <div class="analysis-summary">
+                <div class="summary-card">
+                    <span>Total Income</span>
+                    <h3 id="sumIncome">₹0</h3>
+                </div>
+
+                <div class="summary-card">
+                    <span>Total Expense</span>
+                    <h3 id="sumExpense">₹0</h3>
+                </div>
+
+                <div class="summary-card">
+                    <span>Net</span>
+                    <h3 id="sumNet">₹0</h3>
+                </div>
+            </div>
+
+            <h3 class="sub-title">Spend by Category</h3>
+            <div id="categoryBreakdown" class="card-list"></div>
+
+            <h3 class="sub-title">Spend by Account</h3>
+            <div id="accountBreakdown" class="card-list"></div>
+        </section>
+
+        <!-- Budget -->
+        <section id="budget" class="tab-section" role="tabpanel" aria-labelledby="budget" hidden>
+            <h2>Budgets</h2>
+
+            <div class="action-row">
+                <button id="addBudgetBtn" class="primary-btn" type="button">
+                    + Add Budget
+                </button>
+            </div>
+
+            <div id="budgetList" class="card-list">
+                <!-- JS renders budgets -->
+            </div>
+        </section>
+
+        <!-- Accounts -->
+        <section id="accounts" class="tab-section" role="tabpanel" aria-labelledby="accounts" hidden>
+            <h2>Accounts</h2>
+
+            <div class="action-row">
+                <button id="addAccountBtn" class="primary-btn" type="button">
+                    + Add Account
+                </button>
+            </div>
+
+            <div id="accountsList" class="card-list">
+                <!-- JS renders accounts -->
+            </div>
+        </section>
+
+        <!-- Categories -->
+        <section id="categories" class="tab-section" role="tabpanel" aria-labelledby="categories" hidden>
+            <h2>Categories</h2>
+
+            <div class="action-row">
+                <button id="addCategoryBtn" class="primary-btn" type="button">
+                    + Add Category
+                </button>
+            </div>
+
+            <div id="categoriesList" class="card-list">
+                <!-- JS renders categories -->
+            </div>
+        </section>
+    </main>
+
+        <!-- Trips -->
+        <section id="trips" class="tab-section" role="tabpanel" aria-labelledby="trips" hidden>
+        <div class="tab-header-row">
+            <h2>Trips</h2>
+
+            <div class="action-row">
+            <button id="addTripBtn" class="primary-btn" type="button">+ Add Trip</button>
+            </div>
+        </div>
+
+        <!-- Trips List View -->
+        <div id="tripsListView">
+            <div id="tripsList" class="card-list">
+            <!-- JS renders trips (each trip card should have class="trip-card" and data-uuid="...") -->
+            </div>
+        </div>
+
+        <!-- Trip Details View (hidden by default; JS toggles this) -->
+        <div id="tripDetailsView" class="hidden">
+            <div class="detail-header-row">
+            <button id="backToTripsBtn" class="btn-outline" type="button">← Back</button>
+
+            <div class="detail-title">
+                <h3 id="tripDetailsTitle">Trip</h3>
+                <div id="tripDetailsMeta" class="text-sm text-muted"></div>
+            </div>
+            </div>
+
+            <!-- Summary / Balances -->
+            <div class="mt-12">
+            <h4>Balances</h4>
+            <div id="tripBalancesBox" class="card-list mt-8">
+                <!-- JS renders balances cards -->
+            </div>
+            </div>
+
+            <!-- Settlements -->
+            <div class="mt-12">
+            <h4>Settlements</h4>
+            <div id="tripSettlementsBox" class="card-list mt-8">
+                <!-- JS renders settlement suggestions -->
+            </div>
+            </div>
+
+            <!-- Transactions -->
+            <div class="mt-12">
+            <h4>Transactions</h4>
+            <div id="tripTxBox" class="card-list mt-8">
+                <!-- JS renders trip transactions -->
+            </div>
+            </div>
+        </div>
+        </section>
+
+
+    <!-- ==================== MODALS ==================== -->
+
+    <div id="modalContainer" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-content">
+            <button class="close-modal" id="modalClose" type="button" aria-label="Close modal">&times;</button>
+            <div id="modalBody"><!-- JS loads modal UI here --></div>
+        </div>
+    </div>
+
+    <!-- JS -->
+    <script type="module" src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+
+</html>
